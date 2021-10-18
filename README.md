@@ -18,14 +18,28 @@ None.
 
 ## Example Playbook
 
-    - hosts: all
+    - hosts: web
       vars:
+        use_classyllama_pwa_demo: true
+        pwa_demo_hostname: "pwa-{{ app_domain }}"
+        pwa_demo_env_root: /var/www/data-pwa
+        pwa_demo_app_dir: /var/www/data-pwa/venia-concept
+        pwa_demo_user: www-data-pwa
+        pwa_demo_group: www-data-pwa
+        pwa_demo_scripts_dir: "/home/{{ pwa_demo_user }}/pwa-demo"
+        pwa_demo_config_name: "site"
+
         pwa_demo_config_overrides:
-          pwa_demo_magento_base_url: example.lan
-          pwa_demo_env_root: /var/www/data-pwa
-          pwa_demo_magento_root: /var/www/data-pwa/pwa
-          pwa_demo_user: www-data-pwa
-          pwa_demo_group: www-data-pwa
+          CONFIG_NAME: "site"
+          SITE_HOSTNAME: "pwa-{{ app_domain }}"
+          PWA_APP_DIR: "/var/www/data-pwa/venia-concept"
+          SITE_ROOT_DIR: "current"
+          PWA_STUDIO_REPO: "https://github.com/magento/pwa-studio/archive/refs/tags/"
+          PWA_STUDIO_VER: "11.0.0"
+          PWA_STUDIO_ROOT_DIR: "/var/www/data-pwa/pwa-studio"
+          MAGENTO_URL: "https://{{ app_domain }}"
+          MAGENTO_REL_VER: "2.4.3"
+          MAGENTO_LICENSE: "EE"
       roles:
         - { role: classyllama.pwa-demo, tags: pwa-demo, when: use_classyllama_pwa_demo | default(false) }
 
