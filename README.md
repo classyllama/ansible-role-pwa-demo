@@ -28,7 +28,6 @@ None.
         pwa_demo_group: www-data-pwa
         pwa_demo_scripts_dir: "/home/{{ pwa_demo_user }}/pwa-demo"
         pwa_demo_config_name: "site"
-
         pwa_demo_config_overrides:
           CONFIG_NAME: "site"
           SITE_HOSTNAME: "pwa-{{ app_domain }}"

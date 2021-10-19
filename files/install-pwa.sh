@@ -30,17 +30,6 @@ if [[ $# < 1 ]]; then
   exit;
 fi
 
-#  "CONFIG_NAME": "example",
-#  "SITE_HOSTNAME": "pwa.example.lan",
-#  "PWA_APP_DIR": "/var/www/data-pwa/venia-concept",
-#  "SITE_ROOT_DIR": "current",
-#  "PWA_STUDIO_REPO": "https://github.com/magento/pwa-studio/archive/refs/tags/",
-#  "PWA_STUDIO_VER": "11.0.0",
-#  "PWA_STUDIO_ROOT_DIR": "/var/www/data-pwa/pwa-studio",
-#  "MAGENTO_URL": "https://magento.lan/",
-#  "MAGENTO_REL_VER": "2.4.3",
-#  "MAGENTO_LICENSE": "CE"
-
 # Config Files
 CONFIG_DEFAULT="config_default.json"
 CONFIG_OVERRIDE="${CONFIG_FILE}"
@@ -62,6 +51,44 @@ declare MAGENTO_URL=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq 
 declare MAGENTO_REL_VER=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.MAGENTO_REL_VER')
 declare MAGENTO_LICENSE=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.MAGENTO_LICENSE')
 
+# Checking Magento and PWA Studio version compability
+# removing patch releases
+MAGENTO_MAIN_VER=$(echo ${MAGENTO_REL_VER} | sed 's/-p.$//')
+
+if [[ ${MAGENTO_MAIN_VER} == "2.4.3" ]]; then
+   PWA_COMPAT_VER=("11.0.0" "12.0.0")
+elif [[ ${MAGENTO_MAIN_VER} == "2.4.2" ]]; then
+   PWA_COMPAT_VER=("9.0.0" "9.0.1" "10.0.0")
+elif [[ ${MAGENTO_MAIN_VER} == "2.4.1" ]]; then
+   PWA_COMPAT_VER=("8.0.0")
+elif [[ ${MAGENTO_MAIN_VER} == "2.4.0" ]]; then
+   PWA_COMPAT_VER=("8.0.0")
+elif [[ ${MAGENTO_MAIN_VER} == "2.3.5" ]]; then
+   PWA_COMPAT_VER=("6.0.0" "6.0.1" "7.0.0")
+elif [[ ${MAGENTO_MAIN_VER} == "2.3.4" ]]; then
+   PWA_COMPAT_VER=("5.0.0" "6.0.0" "6.0.1")
+elif [[ ${MAGENTO_MAIN_VER} == "2.3.3" ]]; then
+   PWA_COMPAT_VER=("4.0.0" "5.0.0" "5.0.1")
+elif [[ ${MAGENTO_MAIN_VER} == "2.3.2" ]]; then
+   PWA_COMPAT_VER=("4.0.0")
+elif [[ ${MAGENTO_MAIN_VER} == "2.3.1" ]]; then
+   PWA_COMPAT_VER=("2.1.0" "3.0.0")
+elif [[ ${MAGENTO_MAIN_VER} == "2.3.0" ]]; then
+   PWA_COMPAT_VER=("2.0.0")
+else
+   PWA_COMPAT_VER=("12.0.0")
+fi
+
+if [[ ! "${PWA_COMPAT_VER[*]}" =~ "${PWA_STUDIO_VER}" ]]; then
+  echo "Please check Magento and PWA Studio version compability:
+
+        Magento version: ${MAGENTO_REL_VER}
+        PWA Studio: ${PWA_STUDIO_VER}
+
+Compability matrix: https://magento.github.io/pwa-studio/technologies/magento-compatibility/"
+  exit 1;
+fi
+
 # Setup Directories
 # check if already exists
 [ -d "${PWA_STUDIO_ROOT_DIR}" ] && rm -rf ${PWA_STUDIO_ROOT_DIR} 
@@ -76,24 +103,37 @@ cd ${PWA_STUDIO_ROOT_DIR}
 echo "----: Download and extract PWA Studio"
 
 wget ${PWA_STUDIO_REPO}/v${PWA_STUDIO_VER}.tar.gz
-tar xf v${PWA_STUDIO_VER}.tar.gz --strip-components 1  && rm v${PWA_STUDIO_VER}.tar.gz
+tar xf v${PWA_STUDIO_VER}.tar.gz --strip-components 1 && rm v${PWA_STUDIO_VER}.tar.gz
 
 # Generate Braintree Token
 declare BTOKEN=sandbox_$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-z0-9' | fold -w 8 | head -n1)_$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-z0-9' | fold -w 16 | head -n1)
  
 echo "----: Run buildpack"
-npx @magento/pwa-buildpack create-project $(basename ${PWA_APP_DIR}) --name \"${SITE_HOSTNAME}\" --author \"PWA Demo\" --template \"@magento/venia-concept\" --backend-url \"${MAGENTO_URL}\" --braintree-token \"${BTOKEN}\" --npm-client \"yarn\"
+echo y | npx @magento/pwa-buildpack create-project $(basename ${PWA_APP_DIR}) --name \"${SITE_HOSTNAME}\" --author \"PWA Demo\" --template \"@magento/venia-concept\" --backend-url \"${MAGENTO_URL}\" --braintree-token \"${BTOKEN}\" --npm-client \"yarn\"
 
 mv $(basename ${PWA_APP_DIR}) ${PWA_APP_DIR} 
 
-echo "----: Checking Magento edition"
+echo "----: Checking Magento license"
 if [ ${MAGENTO_LICENSE} == "EE" ]; then
   sed -i 's/MAGENTO_BACKEND_EDITION=CE/MAGENTO_BACKEND_EDITION=EE/' ${PWA_APP_DIR}/.env
 fi
 
-echo "----: Yarn install && build"
+echo "----: Yarn build"
 cd ${PWA_APP_DIR}
-yarn install
 yarn build
 
+# Save admin credentials as indicator that script completed successfully
+echo "----: Saving PWA Data"
+PWA_DATA=$(cat <<CONTENTS_HEREDOC
+{
+  "SITE_HOSTNAME": "${SITE_HOSTNAME}",
+  "PWA_APP_DIR": "${PWA_APP_DIR}",
+  "PWA_STUDIO_VER": "${PWA_STUDIO_VER}",
+  "MAGENTO_URL": "${MAGENTO_URL}",
+  "MAGENTO_REL_VER": "${MAGENTO_REL_VER}",
+  "MAGENTO_LICENSE": "${MAGENTO_LICENSE}"
+}
+CONTENTS_HEREDOC
+)
+echo ${PWA_DATA} > $(dirname ${PWA_STUDIO_ROOT_DIR})/pwa_instance_data.json
 echo "----: PWA Install Finished"
