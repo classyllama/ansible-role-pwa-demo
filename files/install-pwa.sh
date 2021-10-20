@@ -102,7 +102,7 @@ cd ${PWA_STUDIO_ROOT_DIR}
 # Download and extract PWA Studio
 echo "----: Download and extract PWA Studio"
 
-wget ${PWA_STUDIO_REPO}/v${PWA_STUDIO_VER}.tar.gz
+curl ${PWA_STUDIO_REPO}/v${PWA_STUDIO_VER}.tar.gz -o ${PWA_STUDIO_REPO}/v${PWA_STUDIO_VER}.tar.gz
 tar xf v${PWA_STUDIO_VER}.tar.gz --strip-components 1 && rm v${PWA_STUDIO_VER}.tar.gz
 
 # Generate Braintree Token
