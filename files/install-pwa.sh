@@ -145,7 +145,7 @@ else
 fi
 
 echo "----: Starting PM2 service"
-cd $(dirname ${PWA_APP_DIR})/${SITE_ROOT_DIR}
+cd $(dirname ${PWA_APP_DIR})
 pm2 start
 pm2 save
 
