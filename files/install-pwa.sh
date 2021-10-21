@@ -144,4 +144,9 @@ else
    ln -s ${PWA_APP_DIR} $(dirname ${PWA_APP_DIR})/${SITE_ROOT_DIR}
 fi
 
+echo "----: Starting PM2 service"
+cd $(dirname ${PWA_APP_DIR})/${SITE_ROOT_DIR}
+pm2 start
+pm2 save
+
 echo "----: PWA Install Finished"
