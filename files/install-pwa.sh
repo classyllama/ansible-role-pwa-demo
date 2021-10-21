@@ -136,4 +136,12 @@ PWA_DATA=$(cat <<CONTENTS_HEREDOC
 CONTENTS_HEREDOC
 )
 echo ${PWA_DATA} > $(dirname ${PWA_STUDIO_ROOT_DIR})/pwa_instance_data.json
+
+echo "---: Creating a symlink to $(dirname ${PWA_APP_DIR})/${SITE_ROOT_DIR} if not exists"
+if [[ -L $(dirname ${PWA_APP_DIR})/${SITE_ROOT_DIR} ]]; then 
+    echo "Symlink already exists, not linking"
+else
+   ln -s ${PWA_APP_DIR} $(dirname ${PWA_APP_DIR})/${SITE_ROOT_DIR}
+fi
+
 echo "----: PWA Install Finished"

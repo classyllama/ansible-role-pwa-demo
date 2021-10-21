@@ -41,31 +41,3 @@
   community.general.npm:
     name: yarn
     global: yes
-
-- name: Run PWA Demo installation
-  become: yes
-  become_user: "{{ pwa_demo_user }}"
-  ansible.builtin.shell: ./install-pwa.sh config_site.json
-  args:
-    chdir: "{{ pwa_demo_scripts_dir }}"
-  register: out
-
-- name: PWA Demo installation output
-  debug: var=out.stdout_lines
-
-  # Symlink /var/www/data-pwa/current to /var/www/data-pwa/venia-concept
-- name: Check that the current path exists
-  stat:
-    path: "{{ pwa_demo_env_root }}/current"
-  register: current_path
-
-- name: Link venia-concept directory to current
-  file:
-    src: "{{ pwa_demo_magento_root }}"
-    dest: "{{ pwa_demo_env_root }}/current"
-    owner: "{{ pwa_demo_user }}"
-    group: "{{ pwa_demo_group }}"
-    state: link
-    force: yes
-  when: 
-    - not current_path.stat.exists 

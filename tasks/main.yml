@@ -5,6 +5,6 @@
     path: "{{ pwa_demo_scripts_dir }}"
   register: scriptdir
 
-- name: PWA install script doesn't not exists, running install
+- name: PWA install script doesn't not exists
   include_tasks: install.yml
   when: not scriptdir.stat.exists
