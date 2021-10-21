@@ -102,8 +102,8 @@ cd ${PWA_STUDIO_ROOT_DIR}
 # Download and extract PWA Studio
 echo "----: Download and extract PWA Studio"
 
-curl ${PWA_STUDIO_REPO}/v${PWA_STUDIO_VER}.tar.gz -o ${PWA_STUDIO_REPO}/v${PWA_STUDIO_VER}.tar.gz
-tar xf v${PWA_STUDIO_VER}.tar.gz --strip-components 1 && rm v${PWA_STUDIO_VER}.tar.gz
+curl -s ${PWA_STUDIO_REPO}v${PWA_STUDIO_VER}.tar.gz -o ${PWA_STUDIO_VER}.tar.gz
+tar xf ${PWA_STUDIO_VER}.tar.gz --strip-components 1 && rm ${PWA_STUDIO_VER}.tar.gz
 
 # Generate Braintree Token
 declare BTOKEN=sandbox_$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-z0-9' | fold -w 8 | head -n1)_$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-z0-9' | fold -w 16 | head -n1)
