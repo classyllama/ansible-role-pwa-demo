@@ -119,8 +119,7 @@ if [ ${MAGENTO_LICENSE} == "EE" ]; then
 fi
 
 echo "----: Yarn build"
-cd ${PWA_APP_DIR}
-yarn build
+cd ${PWA_APP_DIR} && yarn build
 
 # Save admin credentials as indicator that script completed successfully
 echo "----: Saving PWA Data"
@@ -148,6 +147,7 @@ fi
 echo "----: Starting PM2 service"
 cd $(dirname ${PWA_APP_DIR})
 pm2 start
+echo "----: Save PM2 service status"
 pm2 save
 
 echo "----: PWA Install Finished"
