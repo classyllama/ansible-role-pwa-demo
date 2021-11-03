@@ -60,7 +60,7 @@ declare -i IS_COMPAT=0
 MAGENTO_MAIN_VER=$(echo ${MAGENTO_REL_VER} | sed 's/-p.$//')
 
 # Get compability matrix
-IS_COMPAT=$(curl -Ls https://raw.githubusercontent.com/magento/pwa-studio/develop/magento-compatibility.js |awk -F "'" {' print $2":"$4 '} |grep -v '^:$' | while read line; do
+IS_COMPAT=$(curl -Ls ${PWA_STUDIO_COMPAT_MATRIX_URL} |awk -F "'" {' print $2":"$4 '} |grep -v '^:$' | while read line; do
 
 PWA_COMPAT_VER=`echo $line |awk -F ":" {' print $1 '}`
 MAGENTO_COMPAT_VER=`echo $line |awk -F ":" {' print $2 '} |sed 's/ - / /'`
@@ -75,16 +75,16 @@ done)
 if (( ${IS_COMPAT} >=  1 )); then
      echo "----: The versions of Magento and PWA Studio are compatible:
 
-     Magento version: ${MAGENTO_REL_VER}
-     PWA Studio: ${PWA_STUDIO_VER}"
+      Magento version: ${MAGENTO_REL_VER}
+      PWA Studio: ${PWA_STUDIO_VER}"
 
 else
      echo "Please check Magento and PWA Studio version compability:
 
-     Magento version: ${MAGENTO_REL_VER}
-     PWA Studio: ${PWA_STUDIO_VER}
+      Magento version: ${MAGENTO_REL_VER}
+      PWA Studio: ${PWA_STUDIO_VER}
 
-     Compability matrix: https://magento.github.io/pwa-studio/technologies/magento-compatibility/"
+      Compability matrix: https://magento.github.io/pwa-studio/technologies/magento-compatibility/"
      exit 1;
 fi
 
