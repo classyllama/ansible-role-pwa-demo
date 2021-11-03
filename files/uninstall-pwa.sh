@@ -42,6 +42,10 @@ declare CONFIG_NAME=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq 
 declare PWA_APP_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_APP_DIR')
 declare PWA_STUDIO_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_STUDIO_ROOT_DIR')
 
+echo "----: Stopping PM2 service"
+cd $(dirname ${PWA_APP_DIR})
+pm2 stop pwa
+
 echo "----: Removing ${PWA_STUDIO_ROOT_DIR} if exists..."
 [ -d "${PWA_STUDIO_ROOT_DIR}" ] && rm -rf ${PWA_STUDIO_ROOT_DIR}
 echo "----: Removing ${PWA_APP_DIR} if exists..."
