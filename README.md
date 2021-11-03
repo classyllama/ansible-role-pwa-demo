@@ -4,6 +4,8 @@ Installs a shell script on RHEL / CentOS for installing PWA (Venia theme).
 
 The role sets up a config file for a specific domain/directory/user and saves the config files and scripts in the user's home directory ~/username/pwa-demo/.
 
+Please note, PWA Studio Version must be compatible with the installed Magento version, please check the requested PWA Studio version using [PWA Studio compability matrix](https://magento.github.io/pwa-studio/technologies/magento-compatibility/).
+
 ## Requirements
 
 None.

@@ -46,6 +46,7 @@ declare SITE_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | j
 declare PWA_STUDIO_REPO=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_STUDIO_REPO')
 declare PWA_STUDIO_VER=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_STUDIO_VER')
 declare PWA_STUDIO_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_STUDIO_ROOT_DIR')
+declare PWA_STUDIO_COMPAT_MATRIX_URL=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_STUDIO_COMPAT_MATRIX_URL')
 
 declare MAGENTO_URL=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.MAGENTO_URL')
 declare MAGENTO_REL_VER=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.MAGENTO_REL_VER')
@@ -55,39 +56,30 @@ declare MAGENTO_LICENSE=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add |
 # removing patch releases
 MAGENTO_MAIN_VER=$(echo ${MAGENTO_REL_VER} | sed 's/-p.$//')
 
-if [[ ${MAGENTO_MAIN_VER} == "2.4.3" ]]; then
-   PWA_COMPAT_VER=("11.0.0" "12.0.0")
-elif [[ ${MAGENTO_MAIN_VER} == "2.4.2" ]]; then
-   PWA_COMPAT_VER=("9.0.0" "9.0.1" "10.0.0")
-elif [[ ${MAGENTO_MAIN_VER} == "2.4.1" ]]; then
-   PWA_COMPAT_VER=("8.0.0")
-elif [[ ${MAGENTO_MAIN_VER} == "2.4.0" ]]; then
-   PWA_COMPAT_VER=("8.0.0")
-elif [[ ${MAGENTO_MAIN_VER} == "2.3.5" ]]; then
-   PWA_COMPAT_VER=("6.0.0" "6.0.1" "7.0.0")
-elif [[ ${MAGENTO_MAIN_VER} == "2.3.4" ]]; then
-   PWA_COMPAT_VER=("5.0.0" "6.0.0" "6.0.1")
-elif [[ ${MAGENTO_MAIN_VER} == "2.3.3" ]]; then
-   PWA_COMPAT_VER=("4.0.0" "5.0.0" "5.0.1")
-elif [[ ${MAGENTO_MAIN_VER} == "2.3.2" ]]; then
-   PWA_COMPAT_VER=("4.0.0")
-elif [[ ${MAGENTO_MAIN_VER} == "2.3.1" ]]; then
-   PWA_COMPAT_VER=("2.1.0" "3.0.0")
-elif [[ ${MAGENTO_MAIN_VER} == "2.3.0" ]]; then
-   PWA_COMPAT_VER=("2.0.0")
-else
-   PWA_COMPAT_VER=("12.0.0")
+# Get compability matrix
+curl -Ls ${PWA_STUDIO_COMPAT_MATRIX_URL} | awk -F "'" {' print $2":"$4 '} |grep -v '^:$' |while read line; do
+
+PWA_COMPAT_VER=`echo $line |awk -F ":" {' print $1 '}`
+MAGENTO_COMPAT_VER=`echo $line |awk -F ":" {' print $2 '} |sed 's/ - / /'`
+
+if [[ ${MAGENTO_COMPAT_VER} =~ ${MAGENTO_MAIN_VER} ]]; then
+  if [[ "${PWA_COMPAT_VER}" == "${PWA_STUDIO_VER}" ]]; then
+     echo "----: The versions of Magento and PWA Studio are compatible:
+
+     Magento version: ${MAGENTO_REL_VER}
+     PWA Studio: ${PWA_STUDIO_VER}"
+     break
+  else
+     echo "Please check Magento and PWA Studio version compability:
+
+     Magento version: ${MAGENTO_REL_VER}
+     PWA Studio: ${PWA_STUDIO_VER}
+
+     Compability matrix: https://magento.github.io/pwa-studio/technologies/magento-compatibility/"
+     exit 1;
+  fi
 fi
-
-if [[ ! "${PWA_COMPAT_VER[*]}" =~ "${PWA_STUDIO_VER}" ]]; then
-  echo "Please check Magento and PWA Studio version compability:
-
-        Magento version: ${MAGENTO_REL_VER}
-        PWA Studio: ${PWA_STUDIO_VER}
-
-Compability matrix: https://magento.github.io/pwa-studio/technologies/magento-compatibility/"
-  exit 1;
-fi
+done
 
 # Setup Directories
 # check if already exists

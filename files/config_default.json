@@ -6,6 +6,7 @@
   "PWA_STUDIO_REPO": "https://github.com/magento/pwa-studio/archive/refs/tags/",
   "PWA_STUDIO_VER": "12.0.0",
   "PWA_STUDIO_ROOT_DIR": "/var/www/data-pwa/pwa-studio",
+  "PWA_STUDIO_COMPAT_MATRIX_URL": "https://raw.githubusercontent.com/magento/pwa-studio/develop/magento-compatibility.js",
   "MAGENTO_URL": "https://magento.lan/",
   "MAGENTO_REL_VER": "2.4.3",
   "MAGENTO_LICENSE": "CE"

@@ -13,8 +13,11 @@ pwa_demo_config_name: "site"
 #  PWA_APP_DIR: "/var/www/data-pwa/venia-concept"
 #  SITE_ROOT_DIR: "current"
 #  PWA_STUDIO_REPO: "https://github.com/magento/pwa-studio/archive/refs/tags/"
+#  # The version of PWA Studio must be compatible with the installed Magento version, please check the requested PWA Studio version compability on https://magento.github.io/pwa-studio/technologies/magento-compatibility/.
+#  # the installation script will fail when version is not compatible.
 #  PWA_STUDIO_VER: "11.0.0"
 #  PWA_STUDIO_ROOT_DIR: "/var/www/data-pwa/pwa-studio"
+#  PWA_STUDIO_COMPAT_MATRIX_URL: "https://raw.githubusercontent.com/magento/pwa-studio/develop/magento-compatibility.js"
 #  MAGENTO_URL: "https://{{ app_domain }}/"
 #  MAGENTO_REL_VER: "2.4.3"
 #  MAGENTO_LICENSE: "CE"
