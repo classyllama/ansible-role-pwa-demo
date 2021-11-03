@@ -50,4 +50,4 @@ echo "----: Removing ${PWA_STUDIO_ROOT_DIR} if exists..."
 [ -d "${PWA_STUDIO_ROOT_DIR}" ] && rm -rf ${PWA_STUDIO_ROOT_DIR}
 echo "----: Removing ${PWA_APP_DIR} if exists..."
 [ -d "${PWA_APP_DIR}" ] && rm -rf ${PWA_APP_DIR}
-echo "----: Uninstall finished""
+echo "----: Uninstall finished"

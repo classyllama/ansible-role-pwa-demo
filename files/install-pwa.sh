@@ -53,23 +53,32 @@ declare MAGENTO_REL_VER=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add |
 declare MAGENTO_LICENSE=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.MAGENTO_LICENSE')
 
 # Checking Magento and PWA Studio version compability
+echo "----: Checking Magento and PWA Studio versions compability"
+declare -i IS_COMPAT=0
+
 # removing patch releases
 MAGENTO_MAIN_VER=$(echo ${MAGENTO_REL_VER} | sed 's/-p.$//')
 
 # Get compability matrix
-curl -Ls ${PWA_STUDIO_COMPAT_MATRIX_URL} | awk -F "'" {' print $2":"$4 '} |grep -v '^:$' |while read line; do
+IS_COMPAT=$(curl -Ls https://raw.githubusercontent.com/magento/pwa-studio/develop/magento-compatibility.js |awk -F "'" {' print $2":"$4 '} |grep -v '^:$' | while read line; do
 
 PWA_COMPAT_VER=`echo $line |awk -F ":" {' print $1 '}`
 MAGENTO_COMPAT_VER=`echo $line |awk -F ":" {' print $2 '} |sed 's/ - / /'`
 
 if [[ ${MAGENTO_COMPAT_VER} =~ ${MAGENTO_MAIN_VER} ]]; then
-  if [[ "${PWA_COMPAT_VER}" == "${PWA_STUDIO_VER}" ]]; then
+  if [[ ${PWA_COMPAT_VER} == ${PWA_STUDIO_VER} ]]; then
+     IS_COMPAT=$((IS_COMPAT + 1)) && echo ${IS_COMPAT}
+  fi
+fi
+done)
+
+if (( ${IS_COMPAT} >=  1 )); then
      echo "----: The versions of Magento and PWA Studio are compatible:
 
      Magento version: ${MAGENTO_REL_VER}
      PWA Studio: ${PWA_STUDIO_VER}"
-     break
-  else
+
+else
      echo "Please check Magento and PWA Studio version compability:
 
      Magento version: ${MAGENTO_REL_VER}
@@ -77,9 +86,7 @@ if [[ ${MAGENTO_COMPAT_VER} =~ ${MAGENTO_MAIN_VER} ]]; then
 
      Compability matrix: https://magento.github.io/pwa-studio/technologies/magento-compatibility/"
      exit 1;
-  fi
 fi
-done
 
 # Setup Directories
 # check if already exists
