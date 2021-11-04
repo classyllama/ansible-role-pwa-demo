@@ -41,7 +41,7 @@ declare CONFIG_NAME=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq 
 declare SITE_HOSTNAME=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.SITE_HOSTNAME')
 
 declare PWA_APP_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_APP_DIR')
-declare SITE_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.SITE_ROOT_DIR')
+declare PWA_SITE_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_SITE_ROOT_DIR')
 
 declare PWA_STUDIO_REPO=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_STUDIO_REPO')
 declare PWA_STUDIO_VER=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_STUDIO_VER')
@@ -136,11 +136,11 @@ CONTENTS_HEREDOC
 echo "${PWA_DATA}" > $(dirname ${PWA_STUDIO_ROOT_DIR})/pwa_instance_data.json
 echo "${PWA_DATA}"
 
-echo "----: Creating a symlink from  ${PWA_APP_DIR} to $(dirname ${PWA_APP_DIR})/${SITE_ROOT_DIR} if not exists"
-if [[ -L $(dirname ${PWA_APP_DIR})/${SITE_ROOT_DIR} ]]; then 
+echo "----: Creating a symlink from  ${PWA_APP_DIR} to $(dirname ${PWA_APP_DIR})/${PWA_SITE_ROOT_DIR} if not exists"
+if [[ -L $(dirname ${PWA_APP_DIR})/${PWA_SITE_ROOT_DIR} ]]; then 
     echo "Symlink already exists, not linking"
 else
-   ln -s ${PWA_APP_DIR} $(dirname ${PWA_APP_DIR})/${SITE_ROOT_DIR}
+   ln -s ${PWA_APP_DIR} $(dirname ${PWA_APP_DIR})/${PWA_SITE_ROOT_DIR}
 fi
 
 echo "----: Starting PM2 service"

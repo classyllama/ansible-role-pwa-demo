@@ -34,7 +34,7 @@ None.
           CONFIG_NAME: "site"
           SITE_HOSTNAME: "pwa-{{ app_domain }}"
           PWA_APP_DIR: "/var/www/data-pwa/venia-concept"
-          SITE_ROOT_DIR: "current"
+          PWA_SITE_ROOT_DIR: "current"
           PWA_STUDIO_REPO: "https://github.com/magento/pwa-studio/archive/refs/tags/"
           PWA_STUDIO_VER: "11.0.0"
           PWA_STUDIO_ROOT_DIR: "/var/www/data-pwa/pwa-studio"
