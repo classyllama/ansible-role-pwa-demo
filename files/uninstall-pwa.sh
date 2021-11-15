@@ -44,7 +44,11 @@ declare PWA_STUDIO_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s a
 
 echo "----: Stopping PM2 service"
 cd $(dirname ${PWA_APP_DIR})
-pm2 stop pwa
+IS_RUNNING=$(pm2 ls |grep online |wc -l)
+if [[ "${IS_RUNNING}" ]]; then
+  echo "----: Found ${IS_RUNNING} running PM2 processes"
+  pm2 stop pwa
+fi
 
 echo "----: Removing ${PWA_STUDIO_ROOT_DIR} if exists..."
 [ -d "${PWA_STUDIO_ROOT_DIR}" ] && rm -rf ${PWA_STUDIO_ROOT_DIR}
