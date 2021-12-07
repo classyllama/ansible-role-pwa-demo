@@ -158,5 +158,5 @@ else
   pm2 start
   echo "----: Save PM2 service status"
   pm2 save
-
+fi
 echo "----: PWA Install Finished"
