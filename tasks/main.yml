@@ -1,7 +1,7 @@
 ---
 - name: adding user "{{ pwa_demo_user }}" to group "{{ magento_demo_group }}"
   user:
-    name: "{{ pwa_demo_userr }}"
+    name: "{{ pwa_demo_user }}"
     groups: "{{ magento_demo_group }}"
     append: yes
   when: not pwa_demo_type_upward_js
