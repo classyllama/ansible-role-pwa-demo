@@ -42,7 +42,7 @@ declare PWA_STUDIO_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s a
 declare PWA_SITE_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_SITE_ROOT_DIR')
 declare PWA_UPWARD_JS=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_UPWARD_JS')
 
-if [[ "${PWA_UPWARD_JS}" == "true" ]]; then
+if [[ "${PWA_UPWARD_JS}" == "True" ]]; then
   # UPWARD-JS installation
   echo "----: Stopping PM2 service"
   cd ${PWA_STUDIO_ROOT_DIR}/pwa

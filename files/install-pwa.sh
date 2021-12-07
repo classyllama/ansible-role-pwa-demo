@@ -133,7 +133,7 @@ CONTENTS_HEREDOC
 echo "${PWA_DATA}" > $(dirname ${PWA_STUDIO_ROOT_DIR})/pwa_instance_data.json
 echo "${PWA_DATA}"
 
-if [[ "${PWA_UPWARD_JS}" == "false" ]]; then
+if [[ "${PWA_UPWARD_JS}" == "False" ]]; then
 
   ## TODO
   echo "----: Creating a symlink from  ${PWA_STUDIO_ROOT_DIR}/pwa to /var/www/data/magento/pwa if not exists"
