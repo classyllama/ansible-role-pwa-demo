@@ -1,4 +1,15 @@
 ---
+- name: adding user "{{ pwa_demo_user }}" to group "{{ magento_demo_group }}"
+  user:
+    name: "{{ pwa_demo_userr }}"
+    groups: "{{ magento_demo_group }}"
+    append: yes
+  when: not pwa_demo_type_upward_js
+
+- name: Install yarn package globally
+  community.general.npm:
+    name: yarn
+    global: yes
 
 - name: Create PWA Demo script directory
   file:
@@ -37,7 +48,11 @@
     group: "{{ pwa_demo_group }}"
     mode: 0640
 
-- name: Install yarn package globally
-  community.general.npm:
-    name: yarn
-    global: yes
+- name: Copy custom script for Magento_UpwardConnector (upward-php)
+  template:
+    src: custom_script_site.sh.j2
+    dest: "{{ magento_demo_scripts_dir }}/custom_script_site.sh"
+    owner: "{{ magento_demo_user }}"
+    group: "{{ magento_demo_group }}"
+    mode: 0750
+  when: not pwa_demo_type_upward_js

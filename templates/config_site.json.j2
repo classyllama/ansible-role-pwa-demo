@@ -1,7 +1,7 @@
 {
   "CONFIG_NAME": "site",
   "SITE_HOSTNAME": "{{ pwa_demo_hostname }}",
-  "PWA_APP_DIR": "{{ pwa_demo_app_dir }}"
+  "PWA_UPWARD_JS": "{{ pwa_demo_type_upward_js }}"
 
 {% if pwa_demo_config_overrides|length > 0 %}
 {% for key, value in pwa_demo_config_overrides.items() | list %}

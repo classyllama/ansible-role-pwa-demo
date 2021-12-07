@@ -38,20 +38,29 @@ CONFIG_OVERRIDE="${CONFIG_FILE}"
 
 # Read merged config JSON files
 declare CONFIG_NAME=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.CONFIG_NAME')
-
-declare PWA_APP_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_APP_DIR')
 declare PWA_STUDIO_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_STUDIO_ROOT_DIR')
+declare PWA_SITE_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_SITE_ROOT_DIR')
+declare PWA_UPWARD_JS=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_UPWARD_JS')
 
-echo "----: Stopping PM2 service"
-cd $(dirname ${PWA_APP_DIR})
-IS_RUNNING=$(pm2 ls |grep online |wc -l)
-if [[ "${IS_RUNNING}" ]]; then
-  echo "----: Found ${IS_RUNNING} running PM2 processes"
-  pm2 stop pwa
+if [[ "${PWA_UPWARD_JS}" == "true" ]]; then
+  # UPWARD-JS installation
+  echo "----: Stopping PM2 service"
+  cd ${PWA_STUDIO_ROOT_DIR}/pwa
+  IS_RUNNING=$(pm2 ls |grep online |wc -l)
+  if [[ "${IS_RUNNING}" ]]; then
+    echo "----: Found ${IS_RUNNING} running PM2 processes"
+    pm2 stop pwa
+  fi
+
+  echo "----: Removing symlink $(dirname ${PWA_STUDIO_ROOT_DIR})/${PWA_SITE_ROOT_DIR} if exists..."
+  [ -L "$(dirname ${PWA_STUDIO_ROOT_DIR})/${PWA_SITE_ROOT_DIR}" ] && unlink $(dirname ${PWA_STUDIO_ROOT_DIR})/${PWA_SITE_ROOT_DIR}
+
+else
+  # UPWARD-PHP installation
+  echo "----: Removing symlink /var/www/data/magento/pwa if exists..."
+  [ -L "/var/www/data/magento/pwa" ] && unlink /var/www/data/magento/pwa
 fi
 
 echo "----: Removing ${PWA_STUDIO_ROOT_DIR} if exists..."
 [ -d "${PWA_STUDIO_ROOT_DIR}" ] && rm -rf ${PWA_STUDIO_ROOT_DIR}
-echo "----: Removing ${PWA_APP_DIR} if exists..."
-[ -d "${PWA_APP_DIR}" ] && rm -rf ${PWA_APP_DIR}
 echo "----: Uninstall finished"

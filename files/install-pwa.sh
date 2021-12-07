@@ -40,8 +40,8 @@ CONFIG_OVERRIDE="${CONFIG_FILE}"
 declare CONFIG_NAME=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.CONFIG_NAME')
 declare SITE_HOSTNAME=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.SITE_HOSTNAME')
 
-declare PWA_APP_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_APP_DIR')
 declare PWA_SITE_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_SITE_ROOT_DIR')
+declare PWA_UPWARD_JS=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_UPWARD_JS')
 
 declare PWA_STUDIO_REPO=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_STUDIO_REPO')
 declare PWA_STUDIO_VER=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PWA_STUDIO_VER')
@@ -91,7 +91,6 @@ fi
 # Setup Directories
 # check if already exists
 [ -d "${PWA_STUDIO_ROOT_DIR}" ] && rm -rf ${PWA_STUDIO_ROOT_DIR} 
-[ -d "${PWA_APP_DIR}" ] && rm -rf ${PWA_APP_DIR} 
 
 mkdir -p ${PWA_STUDIO_ROOT_DIR}
 # Moving to PWA Studio Directory
@@ -108,24 +107,22 @@ tar xf ${PWA_STUDIO_VER}.tar.gz --strip-components 1 && rm ${PWA_STUDIO_VER}.tar
 declare BTOKEN=sandbox_$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-z0-9' | fold -w 8 | head -n1)_$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-z0-9' | fold -w 16 | head -n1)
  
 echo "----: Run buildpack"
-echo y | npx @magento/pwa-buildpack create-project $(basename ${PWA_APP_DIR}) --name \"${SITE_HOSTNAME}\" --author \"PWA Demo\" --template \"@magento/venia-concept\" --backend-url \"${MAGENTO_URL}\" --braintree-token \"${BTOKEN}\" --npm-client \"yarn\"
-
-mv $(basename ${PWA_APP_DIR}) ${PWA_APP_DIR} 
+echo y | npx @magento/pwa-buildpack create-project pwa --name PWADemo --author PWADemo --template \"@magento/venia-concept\" --backend-url \"${MAGENTO_URL}\" --braintree-token \"${BTOKEN}\" --npm-client \"yarn\"
 
 echo "----: Checking Magento license"
 if [ ${MAGENTO_LICENSE} == "EE" ]; then
-  sed -i 's/MAGENTO_BACKEND_EDITION=CE/MAGENTO_BACKEND_EDITION=EE/' ${PWA_APP_DIR}/.env
+  sed -i 's/MAGENTO_BACKEND_EDITION=CE/MAGENTO_BACKEND_EDITION=EE/' pwa/.env
 fi
 
 echo "----: Yarn build"
-cd ${PWA_APP_DIR} && yarn build
+cd pwa && yarn build
 
 # Save admin credentials as indicator that script completed successfully
 echo "----: Saving PWA Data"
 PWA_DATA=$(cat <<CONTENTS_HEREDOC
 {
   "SITE_HOSTNAME": "${SITE_HOSTNAME}",
-  "PWA_APP_DIR": "${PWA_APP_DIR}",
+  "PWA_APP_DIR": "$(dirname ${PWA_STUDIO_ROOT_DIR})/${PWA_SITE_ROOT_DIR}",
   "PWA_STUDIO_VER": "${PWA_STUDIO_VER}",
   "MAGENTO_URL": "${MAGENTO_URL}",
   "MAGENTO_REL_VER": "${MAGENTO_REL_VER}",
@@ -136,17 +133,30 @@ CONTENTS_HEREDOC
 echo "${PWA_DATA}" > $(dirname ${PWA_STUDIO_ROOT_DIR})/pwa_instance_data.json
 echo "${PWA_DATA}"
 
-echo "----: Creating a symlink from  ${PWA_APP_DIR} to $(dirname ${PWA_APP_DIR})/${PWA_SITE_ROOT_DIR} if not exists"
-if [[ -L $(dirname ${PWA_APP_DIR})/${PWA_SITE_ROOT_DIR} ]]; then 
-    echo "Symlink already exists, not linking"
-else
-   ln -s ${PWA_APP_DIR} $(dirname ${PWA_APP_DIR})/${PWA_SITE_ROOT_DIR}
-fi
+if [[ "${PWA_UPWARD_JS}" == "false" ]]; then
 
-echo "----: Starting PM2 service"
-cd $(dirname ${PWA_APP_DIR})
-pm2 start
-echo "----: Save PM2 service status"
-pm2 save
+  ## TODO
+  echo "----: Creating a symlink from  ${PWA_STUDIO_ROOT_DIR}/pwa to /var/www/data/magento/pwa if not exists"
+  if [[ -L /var/www/data/magento/pwa ]]; then
+      echo "Symlink already exists, not linking"
+  else
+     ln -s ${PWA_STUDIO_ROOT_DIR}/pwa /var/www/data/magento/pwa
+     echo "----: PWA Installation Finished"
+  fi
+
+else
+
+  echo "----: Creating a symlink from  ${PWA_STUDIO_ROOT_DIR}/pwa to $(dirname ${PWA_STUDIO_ROOT_DIR})/${PWA_SITE_ROOT_DIR} if not exists"
+  if [[ -L $(dirname ${PWA_STUDIO_ROOT_DIR})/${PWA_SITE_ROOT_DIR} ]]; then
+      echo "Symlink already exists, not linking"
+  else
+     ln -s ${PWA_STUDIO_ROOT_DIR}/pwa $(dirname ${PWA_STUDIO_ROOT_DIR})/${PWA_SITE_ROOT_DIR}
+     echo "----: PWA Installation Finished"
+  fi
+  echo "----: Starting PM2 service"
+  cd $(dirname ${PWA_STUDIO_ROOT_DIR})/${PWA_SITE_ROOT_DIR}
+  pm2 start
+  echo "----: Save PM2 service status"
+  pm2 save
 
 echo "----: PWA Install Finished"
