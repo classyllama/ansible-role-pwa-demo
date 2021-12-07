@@ -45,7 +45,7 @@ declare PWA_UPWARD_JS=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | j
 if [[ "${PWA_UPWARD_JS}" == "True" ]]; then
   # UPWARD-JS installation
   echo "----: Stopping PM2 service"
-  cd ${PWA_STUDIO_ROOT_DIR}/pwa
+  cd ${PWA_STUDIO_ROOT_DIR}
   IS_RUNNING=$(pm2 ls |grep online |wc -l)
   if [[ "${IS_RUNNING}" ]]; then
     echo "----: Found ${IS_RUNNING} running PM2 processes"

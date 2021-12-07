@@ -154,7 +154,7 @@ else
      echo "----: PWA Installation Finished"
   fi
   echo "----: Starting PM2 service"
-  cd $(dirname ${PWA_STUDIO_ROOT_DIR})/${PWA_SITE_ROOT_DIR}
+  cd $(dirname ${PWA_STUDIO_ROOT_DIR})
   pm2 start
   echo "----: Save PM2 service status"
   pm2 save
