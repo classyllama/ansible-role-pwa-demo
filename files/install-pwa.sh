@@ -141,7 +141,6 @@ if [[ "${PWA_UPWARD_JS}" == "False" ]]; then
       echo "Symlink already exists, not linking"
   else
      ln -s ${PWA_STUDIO_ROOT_DIR}/pwa /var/www/data/magento/pwa
-     echo "----: PWA Installation Finished"
   fi
 
 else
@@ -151,7 +150,6 @@ else
       echo "Symlink already exists, not linking"
   else
      ln -s ${PWA_STUDIO_ROOT_DIR}/pwa $(dirname ${PWA_STUDIO_ROOT_DIR})/${PWA_SITE_ROOT_DIR}
-     echo "----: PWA Installation Finished"
   fi
   echo "----: Starting PM2 service"
   cd $(dirname ${PWA_STUDIO_ROOT_DIR})
